@@ -462,6 +462,15 @@ class PyvexEvaluator(object):
   def Iop_1Uto64(self, argument):
     return utils.mask(argument)
 
+  def Iop_16Uto32(self, argument):
+    return utils.mask(argument, 32)
+
+  def Iop_8Uto32(self, argument):
+    return utils.mask(argument, 32)
+
+  def Iop_1Uto32(self, argument):
+    return utils.mask(argument, 32)
+
   def sign_convert(self, argument, to_base):
     if argument >= 0:
       return argument
