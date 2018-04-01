@@ -21,7 +21,7 @@ class ValidatorTests(unittest.TestCase):
       result = validator.validate_gadget(gadget, irsbs)
       if result != is_valid:
         irsb.pp()
-        
+
       self.assertEqual(result, is_valid)
 
   def make_tests(self, arch, tests):
@@ -68,6 +68,30 @@ class ValidatorTests(unittest.TestCase):
       (['\x48\x93\xc3'],                                     MoveReg, ['rbx'], ['rax'], [], ['rbx'], 8, 8, False), # xchg rbx, rax; ret (bad ip in stack offset)
       (['\x5f\xc3'],                                         LoadMem, ['rsp'], ['rdi'], [8], [], 0x10, 8, False), # pop rdi; ret (bad param)
       (['\x5f\x5e\x5a\xc3'],                                 LoadMultiple, ['rsp'], ['rdi','rsi','rdx'], [0, 7, 0x10], [], 0x20, 0x18, False), # pop rdi; pop rsi; pop rdx; ret (bad param)
+    ]
+    self.run_test(arch, tests)
+
+  def test_x86(self):
+    arch = archinfo.ArchX86()
+    tests = [
+      (['\xff\xe0'],                                 Jump, ['eax'], ['eip'], [], [], 0, None, True), # jmp eax
+      (['\x93\xc3'],                                 MoveReg, ['ebx'], ['eax'], [], ['ebx'], 4, 0, True), # xchg ebx, eax; ret
+      (['\x93\xc3'],                                 MoveReg, ['eax'], ['ebx'], [], ['eax'], 4, 0, True), # xchg ebx, eax; ret
+      (['\x89\xcb\xc3'],                             MoveReg, ['ecx'], ['ebx'], [], [], 4, 0, True), # mov ebx, ecx; ret
+      (['\xbb\xff\xee\xdd\xcc\xc3'],                 LoadConst, [], ['ebx'], [0xccddeeff], [], 4, 0, True), # movabs ebx, 0xccddeeff; ret
+      (['\x01\xc3\xc3'],                             AddGadget, ['ebx','eax'], ['ebx'], [], [], 4, 0, True), # add ebx, eax; ret
+      (['\x5f\xc3'],                                 LoadMem, ['esp'], ['edi'], [0], [], 8, 4, True), # pop edi; ret
+      (['\x8b\x43\x08\xc3'],                         LoadMem, ['ebx'], ['eax'], [8], [], 4, 0, True), # mov eax, QWORD PTR [ebx+0x8]; ret
+      (['\x8b\x07\xc3'],                             LoadMem, ['edi'], ['eax'], [0], [], 4, 0, True), # mov eax, QWORD PTR [ebx+0x8]; ret
+      (['\x89\x03\xc3'],                             StoreMem, ['ebx','eax'], [], [0], [], 4, 0, True), # mov QWORD PTR [ebx], eax; ret
+      (['\x89\x43\x08\xc3'],                         StoreMem, ['ebx','eax'], [], [8], [], 4, 0, True), # mov QWORD PTR [ebx+0x8], eax; ret
+      (['\x89\x44\x24\x08\xc3'],                     StoreMem, ['esp','eax'], [], [8], [], 4, 0, True), # mov QWORD PTR [esp+0x8], eax; ret
+      (['\x03\x03\xc3'],                             LoadAddGadget, ['ebx','eax'], ['eax'], [0], [], 4, 0, True), # add eax, QWORD PTR [esp+0x8]; ret
+      (['\x01\x43\xf8\xc3'],                         StoreAddGadget, ['ebx','eax'], ['eax'], [-8], [], 4, 0, True), # add QWORD PTR [ebx-0x8], eax; ret
+      (['\x59\x89\xcb\xc7\xc1\x05\x00\x00\x00\xc3'], LoadMem, ['esp'], ['ebx'], [0], ['ecx'], 8, 4, True), # pop ecx; mov ebx, ecx; mov ecx, 0x5; ret
+      (['\x59\x89\xcb\xc7\xc1\x05\x00\x00\x00\xc3'], LoadConst, [], ['ecx'], [5], ['ebx'], 8, 4, True), # pop ecx; mov ebx, ecx; mov ecx, 0x5; ret
+      (['\x5f\x5e\x5a\xc3'],                         LoadMultiple, ['esp'], ['edi','esi','edx'], [0, 4, 8], [], 0x10, 0xc, True), # pop edi; pop esi; pop edx; ret
+      (['\xff\xc0\xc3'],                             AddConstGadget, ['eax'], ['eax'], [1], [], 4, 0, True), # inc eax; ret
     ]
     self.run_test(arch, tests)
 

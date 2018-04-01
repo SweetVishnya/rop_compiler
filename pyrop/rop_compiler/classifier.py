@@ -450,6 +450,24 @@ class PyvexEvaluator(object):
   def Iop_64to1(self, argument):
     return utils.mask(argument, 1)
 
+  def Iop_32to16(self, argument):
+    return utils.mask(argument, 16)
+
+  def Iop_32to8(self, argument):
+    return utils.mask(argument, 8)
+
+  def Iop_32to1(self, argument):
+    return utils.mask(argument, 1)
+
+  def Iop_16to8(self, argument):
+    return utils.mask(argument, 8)
+
+  def Iop_16to1(self, argument):
+    return utils.mask(argument, 1)
+
+  def Iop_8to1(self, argument):
+    return utils.mask(argument, 1)
+
   def Iop_32Uto64(self, argument):
     return utils.mask(argument)
 
@@ -470,6 +488,15 @@ class PyvexEvaluator(object):
 
   def Iop_1Uto32(self, argument):
     return utils.mask(argument, 32)
+
+  def Iop_8Uto16(self, argument):
+    return utils.mask(argument, 16)
+
+  def Iop_1Uto16(self, argument):
+    return utils.mask(argument, 16)
+
+  def Iop_1Uto8(self, argument):
+    return utils.mask(argument, 8)
 
   def sign_convert(self, argument, to_base):
     if argument >= 0:
@@ -526,9 +553,13 @@ class PyvexEvaluator(object):
 
   def Iop_CmpEQ64(self, left, right): return 1 if utils.mask(left, 64) == utils.mask(right, 64) else 0
   def Iop_CmpEQ32(self, left, right): return 1 if utils.mask(left, 32) == utils.mask(right, 32) else 0
+  def Iop_CmpEQ16(self, left, right): return 1 if utils.mask(left, 16) == utils.mask(right, 16) else 0
+  def Iop_CmpEQ8(self, left, right):  return 1 if utils.mask(left, 8) == utils.mask(right, 8) else 0
 
   def Iop_CmpNE64(self, left, right): return 1 if utils.mask(left, 64) != utils.mask(right, 64) else 0
   def Iop_CmpNE32(self, left, right): return 1 if utils.mask(left, 32) != utils.mask(right, 32) else 0
+  def Iop_CmpNE16(self, left, right): return 1 if utils.mask(left, 16) != utils.mask(right, 16) else 0
+  def Iop_CmpNE8(self, left, right):  return 1 if utils.mask(left, 8) != utils.mask(right, 8) else 0
 
 if __name__ == "__main__":
   import sys

@@ -55,7 +55,20 @@ class ClassifierTests(unittest.TestCase):
 
   def test_x86(self):
     tests = [
-      ({AddConstGadget : 1}, '\x4a\x89\xd0\xc3'), # dec edx; mov eax, edx; ret
+      ({Jump : 1},           '\xff\xe0'),                  # jmp eax
+      ({MoveReg : 2},        '\x93\xc3'),                  # xchg ebx, eax; ret
+      ({MoveReg : 1},        '\x89\xcb\xc3'),              # mov ebx, ecx; ret
+      ({LoadConst : 1},      '\xbb\xff\xee\xdd\xcc\xc3'),  # mov ebx, 0xccddeeff; ret
+      ({AddGadget : 1},      '\x01\xc3\xc3'),              # add ebx, eax; ret
+      ({LoadMem : 1},        '\x5f\xc3'),                  # pop edi; ret
+      ({LoadMem : 1},        '\x8b\x43\x08\xc3'),          # mov eax, DWORD PTR [ebx+0x8]; ret
+      ({LoadMem : 1},        '\x8b\x07\xc3'),              # mov eax, DWORD PTR [edi]; ret
+      ({StoreMem : 1},       '\x89\x03\xc3'),              # mov DWORD PTR [ebx], eax; ret
+      ({StoreMem : 1},       '\x89\x43\x08\xc3'),          # mov DWORD PTR [ebx+0x8], eax; ret
+      ({StoreMem : 1},       '\x89\x44\x24\x04\xc3'),      # mov DWORD PTR [esp+0x4], eax; ret
+      ({LoadAddGadget: 1},   '\x03\x03\xc3'),              # add eax, DWORD PTR [ebx]
+      ({StoreAddGadget: 1},  '\x01\x43\xf8\xc3'),          # add DWORD PTR [ebx-0x8], eax; ret
+      ({AddConstGadget : 1}, '\x4a\x89\xd0\xc3'),          # dec edx; mov eax, edx; ret
     ]
     self.run_test(archinfo.ArchX86(), tests)
 

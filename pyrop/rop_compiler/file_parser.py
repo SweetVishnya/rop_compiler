@@ -4,7 +4,7 @@ import factories
 class FileParser(object):
   """This class parses an executable file to obtain information about it"""
 
-  def __init__(self, filename, base_address = 0, level = logging.WARNING):
+  def __init__(self, filename, base_address = None, level = logging.WARNING):
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     self.logger = logging.getLogger(self.__class__.__name__)
     self.logger.setLevel(level)
@@ -43,6 +43,11 @@ class FileParser(object):
         address = None
       addresses[name] = address
     return addresses
+
+  @property
+  def pie(self):
+    """Whether the current binary is position-independent"""
+    raise RuntimeError("Not Implemented")
 
 if __name__ == "__main__":
   import argparse

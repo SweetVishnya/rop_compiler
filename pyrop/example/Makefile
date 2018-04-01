@@ -8,6 +8,9 @@ default:
 strcpy:
 	clang -g -fno-stack-protector strcpy.c -o strcpy -masm=intel -ldl -m32
 
+gets:
+	gcc -g -fno-stack-protector gets.c -o gets -masm=intel
+
 arm:
 	arm-linux-gnueabi-gcc -fno-stack-protector arm_bof.c -o arm_bof --static
 

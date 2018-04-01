@@ -10,7 +10,7 @@ p = remote('localhost', 2222)
 #gdb.attach(p, "set disassembly-flavor intel")
 
 print "Using automatically built ROP chain"
-files = [(filename, None, 0)]
+files = [(filename, None, None)]
 goals = [
   ["function", "dup2", 4, 0],
   ["function", "dup2", 4, 1],

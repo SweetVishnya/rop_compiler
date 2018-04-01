@@ -5,7 +5,16 @@ import cPickle as pickle
 import utils, extra_archinfo
 
 def from_string(data, log_level = logging.WARNING, address_offset = None, bad_bytes = None, filter_func = None):
+  import sys
+  try:
+    sys.modules['gadget']
+    has_module = True
+  except KeyError:
+    has_module = False
+    sys.modules['gadget'] = sys.modules[GadgetList.__module__]
   gadgets_dict = pickle.loads(data)
+  if not has_module:
+    sys.modules.pop('gadget')
   gadgets_list = [item for sublist in gadgets_dict.values() for item in sublist] # Flatten list of lists
 
   # Turn the names of the arch back into archinfo classes (Which aren't pickle-able)

@@ -12,7 +12,7 @@ class Finder(object):
   MAX_GADGET_SIZE = { "X86" : 10, 'AMD64' : 10, 'MIPS64' : 36, 'MIPS32' : 36, 'PPC32' : 32, 'PPC64' : 32, 'ARM' : 20,
     'ARMEL' : 20 }
 
-  def __init__(self, name, arch, base_address = 0, level = logging.WARNING):
+  def __init__(self, name, arch, base_address = None, level = logging.WARNING):
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     self.logger = logging.getLogger(self.__class__.__name__)
     self.logger.setLevel(level)
@@ -43,7 +43,8 @@ if __name__ == "__main__":
   finder_type = factories.get_finder_from_name(args.finder_type)
   logging_level = logging.DEBUG if args.v else logging.WARNING
   arch = archinfo.arch_from_id(args.arch, 'Iend_BE' if args.big_endian else 'Iend_LE')
-  finder = finder_type(args.filename, arch, 0, logging_level, args.parser_type)
+  parser = factories.get_parser_from_name(args.parser_type)(args.filename, 0, logging_level)
+  finder = finder_type(args.filename, arch, 0 if parser.pie else None, logging_level, args.parser_type)
   gadget_list = finder.find_gadgets(args.validate)
 
   if args.o == None:

@@ -38,7 +38,7 @@ class Scheduler(object):
   def get_all_registers(self):
     registers = dict(self.arch.registers)
     for reg in extra_archinfo.IGNORED_REGISTERS[self.arch.name]:
-      registers.pop(reg)
+      registers.pop(reg, None)
     reg_numbers = []
     for name, (number, size) in registers.items():
       if number not in reg_numbers and number not in [self.sp, self.arch.registers['ip'][0]]:

