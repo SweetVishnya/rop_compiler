@@ -30,6 +30,8 @@ class Scheduler(object):
     self.sp = self.arch.registers['sp'][0]
 
   def get_writable_memory(self, number_of_bytes):
+    while utils.address_contains_bad_byte(self.writable_memory, self.bad_bytes, self.arch):
+      self.writable_memory += 1
     address = self.writable_memory
     # Align the number of bytes and then Leave a little room between memory usages
     self.writable_memory += number_of_bytes + (self.alignment - (number_of_bytes % self.alignment)) + self.alignment
@@ -294,6 +296,9 @@ class Scheduler(object):
 
     # Look for the address of functions capable of fixing the memory protections
     addresses = self.file_handler.get_symbols_address(["mprotect", "syscall"])
+
+    if '\x00' in self.bad_bytes:
+      raise RuntimeError("Couldn't apply page mask cause zero byte is in bad bytes")
 
     if addresses["mprotect"] != None:
       # If we've have mprotect, we're on easy street.  Create a chain to call mprotect()
