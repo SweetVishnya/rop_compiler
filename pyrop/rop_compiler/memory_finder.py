@@ -4,10 +4,6 @@ import classifier as cl, gadget as ga, finder, factories, utils
 class MemoryFinder(finder.Finder):
   """This class parses a file to obtain any gadgets inside their executable sections"""
 
-  def __init__(self, name, arch, base_address = None, level = logging.WARNING, parser_type = None):
-    super(MemoryFinder, self).__init__(name, arch, base_address, level)
-    self.parser = factories.get_parser_from_name(parser_type)(name, base_address, level)
-
   def find_gadgets(self, validate = False, bad_bytes = None):
     """Finds gadgets in the specified file"""
     gadget_list = ga.GadgetList(log_level = self.level, bad_bytes = bad_bytes)

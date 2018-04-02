@@ -49,6 +49,11 @@ class FileParser(object):
     """Whether the current binary is position-independent"""
     raise RuntimeError("Not Implemented")
 
+  @property
+  def arch(self):
+    """The architecture of this binary"""
+    raise RuntimeError("Not Implemented")
+
 if __name__ == "__main__":
   import argparse
 

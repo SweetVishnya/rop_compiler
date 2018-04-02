@@ -26,7 +26,7 @@ def from_string(data, log_level = logging.WARNING, address_offset = None, bad_by
     gadgets_list = filter_func(gadgets_list)
 
   gl = GadgetList(gadgets_list, log_level)
-  if address_offset != None:
+  if address_offset:
     gl.adjust_base_address(address_offset)
 
   if bad_bytes != None:

@@ -43,3 +43,7 @@ class CleParser(file_parser.FileParser):
   @property
   def pie(self):
     return self.ld.main_object.pic
+
+  @property
+  def arch(self):
+    return self.ld.main_object.arch

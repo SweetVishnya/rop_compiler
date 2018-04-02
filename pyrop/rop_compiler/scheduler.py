@@ -9,15 +9,15 @@ PROT_RWX = 7
 class Scheduler(object):
   """This class takes a set of gadgets and combines them together to implement the given goals"""
 
-  def __init__(self, gadget_list, goal_resolver, file_handler, arch, level = logging.WARNING, bad_bytes = None):
+  def __init__(self, gadget_list, goal_resolver, file_handler, level = logging.WARNING, bad_bytes = None):
     logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     self.logger = logging.getLogger(self.__class__.__name__)
     self.logger.setLevel(level)
 
-    self.arch = arch
     self.bad_bytes = bad_bytes
     self.gadget_list = gadget_list
     self.file_handler = file_handler
+    self.arch = self.file_handler.main_arch
 
     self.write_memory_chains = None
     self.store_mem_gadgets = collections.defaultdict(dict)
